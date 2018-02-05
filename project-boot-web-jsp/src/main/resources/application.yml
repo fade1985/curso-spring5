@@ -1,0 +1,9 @@
+spring:
+ mvc:
+   view:
+     prefix: /WEB-INF/views/
+     suffix: .jsp
+app:
+  controller:
+    titulo: Hola Mundo Spring Boot!!!!!     
+     

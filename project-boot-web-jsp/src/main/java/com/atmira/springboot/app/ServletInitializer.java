@@ -1,4 +1,4 @@
-package com.bolsadeideas.springboot.app;
+package com.atmira.springboot.app;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
@@ -7,7 +7,7 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(SpringBootWebJspApplication.class);
+		return application.sources(ProjectBootWebJspApplication.class);
 	}
 
 }
