@@ -6,4 +6,6 @@ spring:
 app:
   controller:
     titulo: Hola Mundo Spring Boot!!!!!     
+server:
+  port: 8081
      
