@@ -1,12 +1,12 @@
-package com.bolsadeideas.springboot.app;
+package com.atmira.springboot.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringBootThymeleafApplication {
+public class ProjectBootThymeleafApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBootThymeleafApplication.class, args);
+		SpringApplication.run(ProjectBootThymeleafApplication.class, args);
 	}
 }
