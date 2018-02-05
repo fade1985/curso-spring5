@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.atmira.springboot.app.models.dao.IClienteDao;
 import com.atmira.springboot.app.models.entity.Cliente;
 
-@Repository
+@Repository("clienteDaoJPA")
 public class ClienteDaoImpl implements IClienteDao {
     
     @PersistenceContext
