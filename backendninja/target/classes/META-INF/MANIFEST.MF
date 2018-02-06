@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Implementation-Title: backendninja
 Implementation-Version: 0.0.1-SNAPSHOT
-Built-By: jose.marcos
+Built-By: jmarc
 Implementation-Vendor-Id: com.udemy
-Build-Jdk: 1.8.0_131
+Build-Jdk: 1.8.0_161
 Implementation-URL: http://projects.spring.io/spring-boot/backendninja
  /
 Created-By: Maven Integration for Eclipse

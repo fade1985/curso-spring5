@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.atmira.springboot.app.controller.util.paginator.PageRender;
 import com.atmira.springboot.app.models.entity.Cliente;
 import com.atmira.springboot.app.service.IClienteService;
+import com.atmira.springboot.app.util.paginator.PageRender;
 
 @Controller
 @SessionAttributes("cliente")
@@ -35,10 +35,10 @@ public class ClienteController {
         @RequestParam(name = "page", defaultValue = "0") int page,
         Model model){
         
-        Pageable pageRequest = new PageRequest(page, 5);
+        Pageable pageRequest = new PageRequest(page, 4);
         Page<Cliente> clientes = clienteService.findAll(pageRequest);
         
-        PageRender<Cliente> pageRender = new PageRender<>("/listar", clientes);
+        PageRender<Cliente> pageRender = new PageRender<Cliente>("/listar", clientes);
         
         model.addAttribute("titulo", "Listado de clientes");
         model.addAttribute("clientes", clientes);

@@ -1,4 +1,4 @@
-package com.atmira.springboot.app.controller.util.paginator;
+package com.atmira.springboot.app.util.paginator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
