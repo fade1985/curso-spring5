@@ -1,13 +1,9 @@
 package com.atmira.springboot.app.models.dao;
 
-import java.util.List;
+import org.springframework.data.repository.CrudRepository;
 
 import com.atmira.springboot.app.models.entity.Cliente;
 
-public interface IClienteDao {
+public interface IClienteDao extends CrudRepository<Cliente, Long> {
     
-    public List<Cliente> findAll();
-    
-    public void save(
-        Cliente cliente);
 }
