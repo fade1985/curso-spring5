@@ -35,7 +35,7 @@ public class ClienteController {
         @RequestParam(name = "page", defaultValue = "0") int page,
         Model model){
         
-        Pageable pageRequest = new PageRequest(page, 4);
+        Pageable pageRequest = new PageRequest(page, 5);
         Page<Cliente> clientes = clienteService.findAll(pageRequest);
         
         PageRender<Cliente> pageRender = new PageRender<Cliente>("/listar", clientes);
