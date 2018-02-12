@@ -1,12 +1,8 @@
 package com.atmira.springboot.app.controller;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.MalformedURLException;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.validation.Valid;
 
@@ -33,6 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.atmira.springboot.app.models.entity.Cliente;
 import com.atmira.springboot.app.service.IClienteService;
+import com.atmira.springboot.app.service.IUploadFileService;
 import com.atmira.springboot.app.util.paginator.PageRender;
 
 @Controller
@@ -44,9 +41,20 @@ public class ClienteController {
     @Autowired
     private IClienteService clienteService;
     
+    @Autowired
+    private IUploadFileService uploadFileService;
+    
     @GetMapping(value = "/uploads/{filename:.+}")
     public ResponseEntity<Resource> verFoto(
         @PathVariable String filename){
+        
+        Resource recurso = null;
+        try {
+            recurso = uploadFileService.load(filename);
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + recurso.getFilename() + "\"")
@@ -77,7 +85,6 @@ public class ClienteController {
     public String listar(
         @RequestParam(name = "page", defaultValue = "0") int page,
         Model model){
-        
         Pageable pageRequest = new PageRequest(page, 5);
         Page<Cliente> clientes = clienteService.findAll(pageRequest);
         
@@ -140,35 +147,19 @@ public class ClienteController {
             
             if (cliente.getId() != null && cliente.getId() > 0 && cliente.getFoto() != null
                     && cliente.getFoto().length() > 0) {
-                Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto()).toAbsolutePath();
-                File archivo = rootPath.toFile();
                 
-                if (archivo.exists() && archivo.canRead()) {
-                    archivo.delete();
-                }
+                uploadFileService.delete(cliente.getFoto());
             }
             
-            String uniqueFilename = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
-            Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(uniqueFilename);
-            
-            Path rootAbsolutePath = rootPath.toAbsolutePath();
-            
-            log.info("rootPath: " + rootPath.toString());
-            log.info("rootAbsolutePath: " + rootAbsolutePath.toString());
-            
+            String uniqueFilename = null;
             try {
-                // byte[] bytes = foto.getBytes();
-                // Path rutaCompleta = Paths.get(rootPath + File.separator +
-                // foto.getOriginalFilename());
-                // Files.write(rutaCompleta, bytes);
-                Files.copy(foto.getInputStream(), rootAbsolutePath);
-                flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
-                cliente.setFoto(uniqueFilename);
-                
+                uniqueFilename = uploadFileService.copy(foto);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
+            cliente.setFoto(uniqueFilename);
+            
         }
         
         String mensajeFlash = (cliente.getId() != null) ? "Cliente editado con éxito!" : "Cliente creado con éxito";
@@ -189,15 +180,11 @@ public class ClienteController {
             clienteService.delete(id);
             flash.addFlashAttribute("success", "Cliente eliminado con éxito");
             
-            Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto()).toAbsolutePath();
-            File archivo = rootPath.toFile();
-            
-            if (archivo.exists() && archivo.canRead()) {
-                if (archivo.delete()) {
-                    flash.addFlashAttribute("info", "Foto " + cliente.getFoto() + " eliminada con exito!");
-                }
+            if (uploadFileService.delete(cliente.getFoto())) {
+                flash.addFlashAttribute("info", "Foto " + cliente.getFoto() + " eliminada con exito!");
             }
         }
+        
         return "redirect:/listar";
         
     }
