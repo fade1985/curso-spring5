@@ -69,4 +69,8 @@ public class Cliente implements Serializable {
         this.facturas = new ArrayList<>();
     }
     
+    @Override
+    public String toString(){
+        return nombre + " " + apellido;
+    }
 }
