@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.atmira.springboot.app.models.dao.IClienteDao;
+import com.atmira.springboot.app.models.dao.IFacturaDao;
 import com.atmira.springboot.app.models.dao.IProductoDao;
 import com.atmira.springboot.app.models.entity.Cliente;
+import com.atmira.springboot.app.models.entity.Factura;
 import com.atmira.springboot.app.models.entity.Producto;
 import com.atmira.springboot.app.service.IClienteService;
 
@@ -22,6 +24,9 @@ public class ClienteServiceImpl implements IClienteService {
     
     @Autowired
     private IProductoDao productoDao;
+    
+    @Autowired
+    private IFacturaDao facturaDao;
     
     @Override
     @Transactional(readOnly = true)
@@ -61,7 +66,20 @@ public class ClienteServiceImpl implements IClienteService {
     @Override
     public List<Producto> findByNombre(
         String term){
-        return productoDao.findByNombre(term);
+        return productoDao.findByNombreLikeIgnoreCase("%" + term + "%");
+    }
+    
+    @Override
+    @Transactional
+    public void saveFactura(
+        Factura factura){
+        facturaDao.save(factura);
+    }
+    
+    @Override
+    public Producto findProductoById(
+        Long id){
+        return productoDao.findOne(id);
     }
     
 }
