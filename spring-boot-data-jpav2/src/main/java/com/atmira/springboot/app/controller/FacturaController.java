@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,12 +24,11 @@ import com.atmira.springboot.app.models.entity.ItemFactura;
 import com.atmira.springboot.app.models.entity.Producto;
 import com.atmira.springboot.app.service.IClienteService;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.java.Log;
 
-@Controller
+@Log
 @RequestMapping("/factura")
 @SessionAttributes("factura")
-@Log4j
 public class FacturaController {
     
     @Autowired
