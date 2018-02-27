@@ -6,8 +6,6 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -35,8 +33,6 @@ import com.atmira.springboot.app.util.paginator.PageRender;
 @Controller
 @SessionAttributes("cliente")
 public class ClienteController {
-    
-    private final Logger log = LoggerFactory.getLogger(ClienteController.class);
     
     @Autowired
     private IClienteService clienteService;

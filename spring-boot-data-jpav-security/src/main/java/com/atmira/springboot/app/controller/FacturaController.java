@@ -24,9 +24,6 @@ import com.atmira.springboot.app.models.entity.ItemFactura;
 import com.atmira.springboot.app.models.entity.Producto;
 import com.atmira.springboot.app.service.IClienteService;
 
-import lombok.extern.java.Log;
-
-@Log
 @RequestMapping("/factura")
 @SessionAttributes("factura")
 public class FacturaController {
@@ -111,7 +108,6 @@ public class FacturaController {
             linea.setProducto(producto);
             factura.addItemFactura(linea);
             
-            log.info("ID: " + itemId[i].toString() + ", cantidad: " + cantidad[i].toString());
         }
         
         clienteService.saveFactura(factura);
