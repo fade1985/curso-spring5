@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,8 +32,11 @@ import com.atmira.springboot.app.service.IClienteService;
 import com.atmira.springboot.app.service.IUploadFileService;
 import com.atmira.springboot.app.util.paginator.PageRender;
 
+import lombok.extern.java.Log;
+
 @Controller
 @SessionAttributes("cliente")
+@Log
 public class ClienteController {
     
     @Autowired
@@ -78,12 +83,25 @@ public class ClienteController {
         
     }
     
-    @GetMapping(value = "/listar")
+    @GetMapping(value = { "/listar", "/" })
     public String listar(
         @RequestParam(name = "page", defaultValue = "0") int page,
-        Model model){
+        Model model,
+        Authentication authentication){
         Pageable pageRequest = PageRequest.of(page, 5);
         Page<Cliente> clientes = clienteService.findAll(pageRequest);
+        
+        if (authentication != null) {
+            log.info("Hola usuario autenticado, tu username es: ".concat(authentication.getName()));
+        }
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (auth != null) {
+            log.info(
+                    "Utilizando forma estática SecurityContextHolder.getContext().getAuthentication(): Hola usuario autenticado, tu username es: "
+                            .concat(authentication.getName()));
+        }
         
         PageRender<Cliente> pageRender = new PageRender<Cliente>("/listar", clientes);
         

@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import com.atmira.springboot.app.models.entity.ItemFactura;
 import com.atmira.springboot.app.models.entity.Producto;
 import com.atmira.springboot.app.service.IClienteService;
 
+@Controller
 @RequestMapping("/factura")
 @SessionAttributes("factura")
 public class FacturaController {
