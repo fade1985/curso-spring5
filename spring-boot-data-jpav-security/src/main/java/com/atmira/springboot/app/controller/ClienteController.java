@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -95,7 +97,8 @@ public class ClienteController {
     public String listar(
         @RequestParam(name = "page", defaultValue = "0") int page,
         Model model,
-        Authentication authentication){
+        Authentication authentication,
+        HttpServletRequest request){
         Pageable pageRequest = PageRequest.of(page, 5);
         Page<Cliente> clientes = clienteService.findAll(pageRequest);
         
@@ -115,6 +118,25 @@ public class ClienteController {
             log.info("Hola ".concat(auth.getName()).concat(" tienes acceso!"));
         } else {
             log.info("Hola ".concat(auth.getName()).concat(" NO tienes acceso!"));
+        }
+        
+        SecurityContextHolderAwareRequestWrapper securityContext =
+                new SecurityContextHolderAwareRequestWrapper(request, "ROLE_");
+        
+        if (securityContext.isUserInRole("ADMIN")) {
+            log.info("Forma usando SecurityContextHolderAwareRequestWrapper: Hola ".concat(auth.getName())
+                    .concat(" tienes acceso!"));
+        } else {
+            log.info("Forma usando SecurityContextHolderAwareRequestWrapper: Hola ".concat(auth.getName())
+                    .concat(" NO tienes acceso!"));
+        }
+        
+        if (request.isUserInRole("ROLE_ADMIN")) {
+            log.info("Forma usando HttpServletRequest: Hola ".concat(auth.getName())
+                    .concat(" tienes acceso!"));
+        } else {
+            log.info("Forma usando HttpServletRequest: Hola ".concat(auth.getName())
+                    .concat(" NO tienes acceso!"));
         }
         
         PageRender<Cliente> pageRender = new PageRender<Cliente>("/listar", clientes);

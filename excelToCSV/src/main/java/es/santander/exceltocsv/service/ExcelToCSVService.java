@@ -11,4 +11,7 @@ public interface ExcelToCSVService {
     
     void testSelenium(
         final String url) throws MalformedURLException, URISyntaxException, InterruptedException, IOException;
+    
+    void pdfToCsv(
+        final String string);
 }

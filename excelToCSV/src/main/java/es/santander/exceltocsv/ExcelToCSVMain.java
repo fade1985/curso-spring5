@@ -18,7 +18,8 @@ public class ExcelToCSVMain {
         ExcelToCSVService service = new ExcelToCSVServiceImpl();
         
         // service.processFile(args[0]);
-        service.testSelenium("http://www.google.es");
+        // service.testSelenium("http://www.google.es");
+        service.pdfToCsv("C:\\Cosas_Importantes\\2018\\Marzo\\Seguros\\Excels\\VIVA_REAL.pdf");
     }
     
 }

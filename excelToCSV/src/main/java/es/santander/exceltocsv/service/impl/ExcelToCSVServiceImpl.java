@@ -1,11 +1,9 @@
 package es.santander.exceltocsv.service.impl;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -20,7 +18,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
+import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
+import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 
 import es.santander.exceltocsv.ExcelToCSVMain;
 import es.santander.exceltocsv.model.CellPosition;
@@ -89,27 +92,32 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         
         LOGGER.info("Test Selenium");
         
-        InputStream in = getClass().getResourceAsStream("/drivers/chromedriver.exe");
+        // InputStream in =
+        // getClass().getResourceAsStream("/drivers/chromedriver.exe");
         // URL in2 = getClass().getResource("/drivers/chromedriver.exe");
         // BufferedReader reader = new BufferedReader(new
         // InputStreamReader(in));
         
-        LOGGER.info("Leido como InputStream");
+        LOGGER.info("ChromeDriveeeeeer");
         
-        URL url2 = getClass().getResource("/drivers/chromedriver.exe");
-        FileOutputStream output = new FileOutputStream("../test.exe");
-        InputStream input = url2.openStream();
-        byte[] buffer = new byte[4096];
-        int bytesRead = input.read(buffer);
-        while (bytesRead != -1) {
-            output.write(buffer, 0, bytesRead);
-            bytesRead = input.read(buffer);
-        }
-        output.close();
-        input.close();
-        
-        System.setProperty("webdriver.chrome.driver", "../test.exe");
-        WebDriver driver = new ChromeDriver();
+        // URL url2 = getClass().getResource("/drivers/chromedriver");
+        // FileOutputStream output = new FileOutputStream("./test");
+        // InputStream input = url2.openStream();
+        // byte[] buffer = new byte[4096];
+        // int bytesRead = input.read(buffer);
+        // while (bytesRead != -1) {
+        // output.write(buffer, 0, bytesRead);
+        // bytesRead = input.read(buffer);
+        // }
+        // output.close();
+        // input.close();
+        // LOGGER.info("Copiado!");
+        System.setProperty("webdriver.gecko.driver",
+                "/home/atmira-admin/geckodriver");
+        // System.setProperty("webdriver.chrome.driver",
+        // System.setProperty("webdriver.gecko.driver",
+        // "C:\\Cosas_Importantes\\Spring\\Proyectos\\curso-spring5\\excelToCSV\\src\\main\\resources\\drivers\\geckodriver.exe");
+        WebDriver driver = new FirefoxDriver();
         /*
          * String downloadFilepath =
          * "C:\\Users\\jose.marcos\\Desktop\\excelToCSV\\excel"; HashMap<String,
@@ -126,8 +134,8 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         // driver.get("http://www.google.es");
         driver.get(url);
         System.out.println("Title of the page is -> " + driver.getPageSource());
-        Thread.sleep(1000);
         // Find the text input element by its name
+        // System.out.println("Página web: ".concat(driver.getPageSource()));
         WebElement element = driver.findElement(By.id("query"));
         if (element != null) {
             LOGGER.info("TODO OK, dentro del if");
@@ -152,12 +160,9 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
             }
         }
         
-        // Enter something to search for
-        // element.sendKeys("Cheese!");
+        element.sendKeys("Cheese!");
         
-        // Now submit the form. WebDriver will find the form for us from the
-        // element
-        // element.submit();
+        element.submit();
         
         // Check the title of the page
         System.err.println("Page title is: " + driver.getTitle());
@@ -173,6 +178,31 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
             } catch (IOException e) {
                 LOGGER.debug("Exception.", e);
             }
+        }
+    }
+    
+    @Override
+    public void pdfToCsv(
+        final String string){
+        
+        PdfReader reader;
+        try {
+            reader = new PdfReader(string);
+            
+            PdfReaderContentParser parser = new PdfReaderContentParser(
+                    reader);
+            // PrintWriter out = new PrintWriter(new FileOutputStream(txt));
+            TextExtractionStrategy strategy;
+            String line = null;
+            for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+                strategy = parser.processContent(i,
+                        new SimpleTextExtractionStrategy());
+                line = strategy.getResultantText();
+            }
+            reader.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 }
