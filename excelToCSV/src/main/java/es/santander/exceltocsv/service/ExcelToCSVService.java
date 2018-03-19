@@ -1,17 +1,20 @@
 package es.santander.exceltocsv.service;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-
 public interface ExcelToCSVService {
     
-    void processFile(
-        final String documentPath);
+    void transformAviva(
+        final String inPath,
+        final String outPath);
     
-    void testSelenium(
-        final String url) throws MalformedURLException, URISyntaxException, InterruptedException, IOException;
+    void transformArag(
+        final String inPath,
+        final String outPath);
     
-    void pdfToCsv(
-        final String string);
+    void transformPelayo(
+        final String inPath,
+        final String outPath);
+    
+    void transformSanitas(
+        final String inPath,
+        final String outPath);
 }

@@ -17,9 +17,34 @@ public class ExcelToCSVMain {
         
         ExcelToCSVService service = new ExcelToCSVServiceImpl();
         
-        // service.processFile(args[0]);
-        // service.testSelenium("http://www.google.es");
-        service.pdfToCsv("C:\\Cosas_Importantes\\2018\\Marzo\\Seguros\\Excels\\VIVA_REAL.pdf");
+        service.transformAviva("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/aviva.pdf",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        service.transformArag("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/arag.xls",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        service.transformPelayo("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/pelayo.xlsx",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        service.transformSanitas("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/sanitas.xls",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        // String entrada =
+        // "Entrada:::: uno: '&&1' , dos: '&&2' , varios: '&&123', dos: g4agerga
+        // '&&2', dos: '&&2', uno: '&&1'";
+        // System.out.println(entrada);
+        //
+        // Map<String, String> map = new HashMap<String, String>();
+        // // entrada = entrada.replaceAll("'&&(\\d)+'", "?");
+        // String split[] = entrada.split("'&&");
+        // for (String string : split) {
+        // String value[] = string.split("'");
+        // if (StringUtils.isNumeric(value[0])) {
+        // map.put("'&&".concat(value[0].concat("'")), StringUtils.EMPTY);
+        // }
+        //
+        // }
+        // System.out.println(entrada);
     }
     
 }
