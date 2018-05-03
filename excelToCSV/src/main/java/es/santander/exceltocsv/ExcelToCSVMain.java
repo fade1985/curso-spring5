@@ -29,6 +29,15 @@ public class ExcelToCSVMain {
         service.transformSanitas("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/sanitas.xls",
                 "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
         
+        service.transformCigna("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/cigna_bajas.txt",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/cigna_billing.txt",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        service.transformAwp("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/awp.xlsx",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        service.transformSantaLucia("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/santaLucia.txt",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
         // String entrada =
         // "Entrada:::: uno: '&&1' , dos: '&&2' , varios: '&&123', dos: g4agerga
         // '&&2', dos: '&&2', uno: '&&1'";

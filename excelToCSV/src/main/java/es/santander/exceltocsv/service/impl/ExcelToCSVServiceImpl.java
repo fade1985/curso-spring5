@@ -1,10 +1,13 @@
 package es.santander.exceltocsv.service.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -80,7 +83,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         return cp;
     }
     
-    public void safeClose(
+    private void safeClose(
         InputStream fis){
         if (fis != null) {
             try {
@@ -91,18 +94,56 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         }
     }
     
+    private void safeClose(
+        PdfReader pdfr){
+        if (pdfr != null) {
+            pdfr.close();
+        }
+    }
+    
+    private void safeClose(
+        FileReader fr){
+        if (fr != null) {
+            try {
+                fr.close();
+            } catch (IOException e) {
+                LOGGER.debug("Exception.", e);
+            }
+        }
+    }
+    
+    private void safeClose(
+        BufferedReader br){
+        if (br != null) {
+            try {
+                br.close();
+            } catch (IOException e) {
+                LOGGER.debug("Exception.", e);
+            }
+        }
+    }
+    
+    private void safeClose(
+        PrintWriter pw){
+        if (pw != null) {
+            pw.close();
+        }
+    }
+    
     @Override
     public void transformAviva(
         final String inPath,
         final String outPath){
         
+        PdfReader reader = null;
+        PrintWriter pw = null;
+        
         try {
             // Creamos el fichero de salida
             System.setProperty("line.separator", "\n");
-            PrintWriter pw = new PrintWriter(new File(outPath.concat(Constants.AVIVA_FILE).concat(Constants.CSV)));
+            pw = new PrintWriter(new File(outPath.concat(Constants.AVIVA_FILE).concat(Constants.CSV)));
             
             // Leemos el fichero de entrada
-            PdfReader reader;
             reader = new PdfReader(inPath);
             
             // Convertimos el pdf a texto
@@ -139,8 +180,14 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+        } finally {
+            if (pw != null) {
+                safeClose(pw);
+            }
+            if (reader != null) {
+                safeClose(reader);
+            }
         }
     }
     
@@ -249,11 +296,12 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         final String outPath){
         
         InputStream inputStream = null;
+        PrintWriter pw = null;
         
         try {
             // Creamos el fichero de salida
             System.setProperty("line.separator", "\n");
-            PrintWriter pw = new PrintWriter(new File(outPath.concat(Constants.SANITAS_FILE).concat(Constants.CSV)));
+            pw = new PrintWriter(new File(outPath.concat(Constants.SANITAS_FILE).concat(Constants.CSV)));
             
             // Leemos el fichero de entrada
             inputStream = new FileInputStream(inPath);
@@ -278,83 +326,6 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                     cell = row.getCell(j);
                     
                     String cellData = getExcelData(cell);
-                    
-                    // if (j == 0 || j == 1 || j == 24) {
-                    // sb.append(StringUtils
-                    // .rightPad(cellData, Constants.SANITAS_DATA_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else if (j == 2 || j == 8 || j == 18 || j == 19) {
-                    // // Fechas
-                    // if (cellData.equals(StringUtils.SPACE)) {
-                    // sb.append(StringUtils
-                    // .rightPad(cellData, Constants.SHORT_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else {
-                    // Date date =
-                    // HSSFDateUtil.getJavaDate(Double.parseDouble(cellData));
-                    // sb.append(sdf.format(date));
-                    // }
-                    // } else if (j == 3) {
-                    // Double doubleValue = new Double(cellData);
-                    // sb.append(StringUtils.leftPad(String.valueOf(doubleValue.intValue()),
-                    // Constants.SANITAS_COLLECTIVE_LENGTH,
-                    // "0"));
-                    // } else if (j == 4 || j == 5 || j == 21 || j == 22 || j ==
-                    // 27 || j == 28 || j == 29 || j == 30
-                    // || j == 31 || j == 32 || j == 33 || j == 34 || j == 36) {
-                    // if (cellData.equals(StringUtils.SPACE)) {
-                    // sb.append(StringUtils.rightPad(cellData,
-                    // Constants.SANITAS_ENTITY_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else {
-                    // Double doubleValue = new Double(cellData);
-                    // sb.append(StringUtils.rightPad(String.valueOf(doubleValue.intValue()),
-                    // Constants.SANITAS_ENTITY_LENGTH,
-                    // StringUtils.SPACE));
-                    // }
-                    // } else if (j == 6) {
-                    // if (cellData.equals(StringUtils.SPACE)) {
-                    // sb.append(StringUtils.rightPad(cellData,
-                    // Constants.SANITAS_POLICY_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else {
-                    // Double doubleValue = new Double(cellData);
-                    // sb.append(StringUtils.rightPad(String.valueOf(doubleValue.intValue()),
-                    // Constants.SANITAS_POLICY_LENGTH,
-                    // StringUtils.SPACE));
-                    // }
-                    // } else if (j == 7 || j == 35 || j == 37) {
-                    // // cliente
-                    // sb.append(StringUtils
-                    // .rightPad(cellData, Constants.NAME_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else if (j == 9) {
-                    // Double doubleValue = new Double(cellData);
-                    // sb.append(StringUtils.rightPad(String.valueOf(doubleValue.intValue()),
-                    // Constants.SANITAS_COMMISSION_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else if (j == 10 || j == 11 || j == 12 || j == 13 || j
-                    // == 14) {
-                    // // importes
-                    // sb.append(insertNumber(cellData, false));
-                    // } else if (j == 15 || j == 16) {
-                    // // ramo
-                    // sb.append(StringUtils
-                    // .rightPad(cellData, Constants.MEDIUM_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else if (j == 17 || j == 20) {
-                    // // ramo
-                    // sb.append(StringUtils
-                    // .rightPad(cellData, Constants.NAME_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else if (j == 32) {
-                    // // ramo
-                    // sb.append(StringUtils
-                    // .rightPad(cellData, Constants.SANITAS_ENTITY_LENGTH,
-                    // StringUtils.SPACE));
-                    // } else {
-                    // sb.append(cellData);
-                    // }
                     
                     if (j == 2 || j == 8 || j == 18 || j == 19) {
                         // Fechas
@@ -406,7 +377,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                     } else if (j == 15 || j == 16 || j == 17) {
                         // Tipo producto
                         sb.append(StringUtils
-                                .rightPad(cellData,
+                                .rightPad(StringUtils.stripAccents(cellData),
                                         Constants.MEDIUM_LENGTH,
                                         StringUtils.SPACE));
                         sb.append(Constants.SEMICOLON);
@@ -441,19 +412,265 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
             if (inputStream != null) {
                 safeClose(inputStream);
             }
+            if (pw != null) {
+                safeClose(pw);
+            }
         }
     }
     
+    @Override
+    public void transformCigna(
+        String inPath,
+        String inPath2,
+        String outPath){
+        
+        FileReader fileReader = null;
+        FileReader fileReader2 = null;
+        BufferedReader br = null;
+        BufferedReader br2 = null;
+        PrintWriter pw = null;
+        PrintWriter pw2 = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.CIGNA_1_FILE).concat(Constants.CSV)));
+            pw2 = new PrintWriter(new File(outPath.concat(Constants.CIGNA_2_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada1
+            fileReader = new FileReader(inPath);
+            br = new BufferedReader(fileReader);
+            
+            String sCurrentLine;
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.CIGNA_DATE_FORMAT);
+            
+            while ((sCurrentLine = br.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                
+                String date = sCurrentLine.substring(82, 90);
+                date = sdf.format(dateFormat.parse(date));
+                
+                sb.append(sCurrentLine.substring(0, 2))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(2, 22))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(22, 32))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(32, 82))
+                        .append(Constants.SEMICOLON)
+                        .append(date)
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(90, 110))
+                        .append(Constants.SEMICOLON);
+                
+                sb.deleteCharAt(sb.length() - 1);
+                pw.println(sb.toString());
+            }
+            
+            br.close();
+            fileReader.close();
+            pw.close();
+            
+            // Leemos el fichero de entrada2
+            fileReader2 = new FileReader(inPath2);
+            br2 = new BufferedReader(fileReader2);
+            
+            while ((sCurrentLine = br2.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                
+                String effectiveDate = sCurrentLine.substring(42, 50);
+                effectiveDate = sdf.format(dateFormat.parse(effectiveDate));
+                
+                String expirationDate = sCurrentLine.substring(50, 58);
+                expirationDate = sdf.format(dateFormat.parse(expirationDate));
+                
+                String receiptStateDate = sCurrentLine.substring(58, 66);
+                receiptStateDate = sdf.format(dateFormat.parse(receiptStateDate));
+                
+                sb.append(sCurrentLine.substring(0, 2))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(2, 22))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(22, 32))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(32, 42))
+                        .append(Constants.SEMICOLON)
+                        .append(effectiveDate)
+                        .append(Constants.SEMICOLON)
+                        .append(expirationDate)
+                        .append(Constants.SEMICOLON)
+                        .append(receiptStateDate)
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(66, 68))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(68, 69))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(69, 70))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(70, 81))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(81, 92))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(92, 103))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(103, 114))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(114, 125))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(125, 136))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(136, 186))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(186, 187))
+                        .append(Constants.SEMICOLON);
+                
+                sb.deleteCharAt(sb.length() - 1);
+                pw2.println(sb.toString());
+            }
+            
+            br2.close();
+            fileReader2.close();
+            pw2.close();
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (fileReader != null) {
+                safeClose(fileReader);
+            }
+            if (fileReader2 != null) {
+                safeClose(fileReader2);
+            }
+            if (br != null) {
+                safeClose(br);
+            }
+            if (br2 != null) {
+                safeClose(br2);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+            if (pw2 != null) {
+                safeClose(pw2);
+            }
+        }
+    }
+    
+    @Override
+    public void transformSantaLucia(
+        String inPath,
+        String outPath){
+        
+        FileReader fileReader = null;
+        BufferedReader br = null;
+        PrintWriter pw = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.SANTA_LUCIA_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada1
+            fileReader = new FileReader(inPath);
+            br = new BufferedReader(fileReader);
+            
+            String sCurrentLine;
+            
+            int i = 1;
+            while ((sCurrentLine = br.readLine()) != null) {
+                if ((i % 2) == 0) {
+                    StringBuilder sb = new StringBuilder();
+                    
+                    sb.append(sCurrentLine.substring(0, 3))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(3, 13))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(13, 14))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(14, 18))
+                            .append(Constants.SEMICOLON)
+                            .append(StringUtils.rightPad(sCurrentLine.substring(18, 28),
+                                    Constants.FORTY_LENGTH,
+                                    StringUtils.SPACE))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(28, 31))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(31, 39))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(39, 47))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(47, 55))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(55, 64))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(64, 65))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(65, 66))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(66, 67))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(67, 82))
+                            .append(Constants.SEMICOLON)
+                            .append(StringUtils.rightPad(sCurrentLine.substring(82, 96),
+                                    Constants.TWENTY_LENGTH,
+                                    StringUtils.SPACE)) // NOMBRE
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(96, 136))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(136, 156))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(156, 157))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(157, 197))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(197, 237))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(237, 241))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(241, 245))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(245, 247))
+                            .append(Constants.SEMICOLON)
+                            .append(sCurrentLine.substring(247, 257))
+                            .append(Constants.SEMICOLON);
+                    sb.deleteCharAt(sb.length() - 1);
+                    String result = sb.toString().replace("\t", StringUtils.SPACE);
+                    result = result.replace((char) 164, 'ñ');
+                    pw.println(result);
+                }
+                i++;
+            }
+            br.close();
+            fileReader.close();
+            pw.close();
+            
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (fileReader != null) {
+                safeClose(fileReader);
+            }
+            if (br != null) {
+                safeClose(br);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+        }
+    }
+    
+    @Override
     public void transformArag(
         final String inPath,
         final String outPath){
         
         InputStream inputStream = null;
+        PrintWriter pw = null;
         
         try {
             // Creamos el fichero de salida
             System.setProperty("line.separator", "\n");
-            PrintWriter pw = new PrintWriter(new File(outPath.concat(Constants.ARAG_FILE).concat(Constants.CSV)));
+            pw = new PrintWriter(new File(outPath.concat(Constants.ARAG_FILE).concat(Constants.CSV)));
             
             // Leemos el fichero de entrada
             inputStream = new FileInputStream(inPath);
@@ -479,11 +696,15 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                     cell = row.getCell(j);
                     
                     String cellData = getExcelData(cell);
-                    
-                    if (j == 3) {
+                    if (j == 0) {
                         sb.append(StringUtils
-                                .rightPad(cell.getStringCellValue(),
-                                        Constants.NAME_LENGTH,
+                                .leftPad(cellData,
+                                        Constants.SHORT_LENGTH,
+                                        BigDecimal.ZERO.toString()));
+                    } else if (j == 3) {
+                        sb.append(StringUtils
+                                .rightPad(cellData,
+                                        Constants.MEDIUM_LENGTH,
                                         StringUtils.SPACE));
                     } else if (j > 6) {
                         sb.append(insertNumber(cellData, false));
@@ -511,6 +732,101 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         } finally {
             if (inputStream != null) {
                 safeClose(inputStream);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+        }
+    }
+    
+    @Override
+    public void transformAwp(
+        final String inPath,
+        final String outPath){
+        
+        InputStream inputStream = null;
+        PrintWriter pw = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.AWP_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada
+            inputStream = new FileInputStream(inPath);
+            wb = new XSSFWorkbook(inputStream);
+            Sheet sheet = wb.getSheetAt(0);
+            
+            // Recuperamos la posición de la primera celda
+            CellPosition cp = findCell(Constants.AWP_INIT);
+            
+            // Nos situamos en la primera celda con datos
+            cp.setPosX(cp.getPosX() + 1);
+            Cell cell = sheet.getRow(cp.getPosX()).getCell(0);
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.AWP_DATE_FORMAT);
+            SimpleDateFormat sdf_awp = new SimpleDateFormat(Constants.DATE_FORMAT_AWP);
+            
+            int i = 0;
+            while (cell != null) {
+                StringBuilder sb = new StringBuilder();
+                Row row = sheet.getRow(cp.getPosX() + i);
+                
+                // Recorremos la fila
+                for (int j = 0; j < 11; j++) {
+                    cell = row.getCell(j);
+                    
+                    String cellData = getExcelData(cell);
+                    
+                    if (j == 0 || j == 1 || j == 3) {
+                        sb.append(StringUtils
+                                .leftPad(cellData.split("\\.")[0],
+                                        Constants.FOUR_LENGTH,
+                                        BigDecimal.ZERO.toString()));
+                    } else if (j == 4) {
+                        sb.append(StringUtils
+                                .rightPad(cellData.split("\\.")[0],
+                                        Constants.FORTY_LENGTH,
+                                        StringUtils.EMPTY));
+                    } else if (j == 5) {
+                        sb.append(StringUtils
+                                .rightPad(cellData.split("\\.")[0],
+                                        Constants.NINE_LENGTH,
+                                        StringUtils.EMPTY));
+                    } else if (j == 8 || j == 9) {
+                        sb.append(insertNumber(cellData, false));
+                    } else if (j == 7) {
+                        sb.append(StringUtils
+                                .leftPad(cellData,
+                                        Constants.THREE_LENGTH,
+                                        StringUtils.EMPTY));
+                    } else if (j == 6) {
+                        Date date = HSSFDateUtil.getJavaDate(Double.parseDouble(cellData));
+                        sb.append(sdf_awp.format(date));
+                    } else {
+                        sb.append(cellData);
+                    }
+                    sb.append(Constants.SEMICOLON);
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                pw.println(sb.toString());
+                i++;
+                
+                // Avanzamos a la siguiente fila
+                cell = sheet.getRow(cp.getPosX() + i).getCell(0);
+                
+            }
+            
+            inputStream.close();
+            pw.close();
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (inputStream != null) {
+                safeClose(inputStream);
+            }
+            if (pw != null) {
+                safeClose(pw);
             }
         }
     }
@@ -616,4 +932,5 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         }
         
     }
+    
 }
