@@ -35,14 +35,13 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 
-import es.santander.exceltocsv.ExcelToCSVMain;
 import es.santander.exceltocsv.model.CellPosition;
 import es.santander.exceltocsv.service.ExcelToCSVService;
 import es.santander.exceltocsv.utilities.Constants;
 
 public class ExcelToCSVServiceImpl implements ExcelToCSVService {
     
-    private static final Logger LOGGER = Logger.getLogger(ExcelToCSVMain.class);
+    private static final Logger LOGGER = Logger.getLogger(ExcelToCSVServiceImpl.class);
     
     private final NumberFormat formatNumber = NumberFormat.getInstance(new Locale("es", "ES"));
     private final DecimalFormat format = new DecimalFormat("+0000000000000;-0000000000000");
@@ -229,11 +228,11 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                     
                     if (j == 1) { // Ramo
                         sb.append(StringUtils
-                                .rightPad(cellData, Constants.PELAYO_TYPE_LENGTH, StringUtils.SPACE));
+                                .rightPad(cellData, Constants.TEN_LENGTH, StringUtils.SPACE));
                     } else if (j == 2) { // Recibo
                         
                         sb.append(StringUtils
-                                .rightPad(cellData, Constants.PELAYO_RECEIPT_LENGTH, StringUtils.SPACE));
+                                .rightPad(cellData, Constants.FOURTEEN_LENGTH, StringUtils.SPACE));
                     } else if (j == 3 || j == 5) {
                         // Fechas
                         Date date = dateFormat.parse(cellData);
@@ -244,7 +243,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                         String payMethod = data[1] == null ? StringUtils.SPACE : data[1];
                         sb.append(
                                 StringUtils.rightPad(policy,
-                                        Constants.PELAYO_POLICY_LENGTH,
+                                        Constants.FORTY_LENGTH,
                                         StringUtils.SPACE))
                                 .append(Constants.SEMICOLON)
                                 .append(payMethod);
@@ -254,12 +253,12 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                     } else if (j == 9) {
                         // cliente
                         sb.append(StringUtils
-                                .rightPad(cellData, Constants.NAME_LENGTH, StringUtils.SPACE));
+                                .rightPad(cellData, Constants.ONE_HUNDRED_LENGTH, StringUtils.SPACE));
                     } else if (j == 12) {
                         // p.venta
                         Double doubleValue = new Double(cellData);
                         sb.append(StringUtils.rightPad(String.valueOf(doubleValue.intValue()),
-                                Constants.PELAYO_STALL_LENGTH,
+                                Constants.TWENTY_LENGTH,
                                 StringUtils.SPACE));
                     } else {
                         // resto de campos
@@ -331,7 +330,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                         // Fechas
                         if (cellData.equals(StringUtils.SPACE)) {
                             sb.append(StringUtils
-                                    .rightPad(cellData, Constants.SHORT_LENGTH, StringUtils.SPACE));
+                                    .rightPad(cellData, Constants.TEN_LENGTH, StringUtils.SPACE));
                         } else {
                             Date date = HSSFDateUtil.getJavaDate(Double.parseDouble(cellData));
                             sb.append(sdf.format(date));
@@ -352,14 +351,14 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                         if (cellData.equals(StringUtils.SPACE)) {
                             sb.append(StringUtils
                                     .rightPad(collective,
-                                            Constants.SANITAS_POLICY_LENGTH,
+                                            Constants.FORTY_LENGTH,
                                             StringUtils.SPACE));
                         } else {
                             Double doubleValue = new Double(cellData);
                             String policy = String.valueOf(doubleValue.intValue());
                             sb.append(StringUtils
                                     .rightPad(policy.concat(collective),
-                                            Constants.SANITAS_POLICY_LENGTH,
+                                            Constants.FORTY_LENGTH,
                                             StringUtils.SPACE));
                         }
                         sb.append(Constants.SEMICOLON);
@@ -367,7 +366,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                         // Nombre cliente
                         sb.append(StringUtils
                                 .rightPad(cellData,
-                                        Constants.NAME_LENGTH,
+                                        Constants.ONE_HUNDRED_LENGTH,
                                         StringUtils.SPACE));
                         sb.append(Constants.SEMICOLON);
                     } else if (j == 10 || j == 11 || j == 14) {
@@ -378,7 +377,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                         // Tipo producto
                         sb.append(StringUtils
                                 .rightPad(StringUtils.stripAccents(cellData),
-                                        Constants.MEDIUM_LENGTH,
+                                        Constants.FIFTY_LENGTH,
                                         StringUtils.SPACE));
                         sb.append(Constants.SEMICOLON);
                     } else if (j == 20) {
@@ -699,12 +698,12 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                     if (j == 0) {
                         sb.append(StringUtils
                                 .leftPad(cellData,
-                                        Constants.SHORT_LENGTH,
+                                        Constants.TEN_LENGTH,
                                         BigDecimal.ZERO.toString()));
                     } else if (j == 3) {
                         sb.append(StringUtils
                                 .rightPad(cellData,
-                                        Constants.MEDIUM_LENGTH,
+                                        Constants.FIFTY_LENGTH,
                                         StringUtils.SPACE));
                     } else if (j > 6) {
                         sb.append(insertNumber(cellData, false));
@@ -764,7 +763,6 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
             cp.setPosX(cp.getPosX() + 1);
             Cell cell = sheet.getRow(cp.getPosX()).getCell(0);
             
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.AWP_DATE_FORMAT);
             SimpleDateFormat sdf_awp = new SimpleDateFormat(Constants.DATE_FORMAT_AWP);
             
             int i = 0;
@@ -831,6 +829,531 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
         }
     }
     
+    @Override
+    public void transformAllianz(
+        final String inPath,
+        final String outPath){
+        
+        transformEuautos(inPath, outPath);
+        transformEucontr(inPath, outPath);
+        transformEuleasi(inPath, outPath);
+        // transformEuramos(inPath, outPath);
+    }
+    
+    private void transformEuramos(
+        String inPath,
+        String outPath){
+        
+        FileReader fileReader = null;
+        BufferedReader br = null;
+        PrintWriter pw = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.ALLIANZ_EURAMOS_OUT_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada1
+            fileReader = new FileReader(inPath.concat(Constants.ALLIANZ_EURAMOS_FILE));
+            br = new BufferedReader(fileReader);
+            
+            String sCurrentLine;
+            
+            while ((sCurrentLine = br.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                
+                sb.append(sCurrentLine.substring(0, 1))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(1, 10))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(10, 15))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(15, 18))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(18, 19))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(19, 28))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(28, 34))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(34, 43))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(43, 48))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(48, 50))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(50, 59))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(59, 70))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(70, 71))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(71, 80))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(80, 125))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(125, 133))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(133, 136))
+                        .append(Constants.SEMICOLON);
+                
+                sb.deleteCharAt(sb.length() - 1);
+                pw.println(sb.toString());
+            }
+            
+            br.close();
+            fileReader.close();
+            pw.close();
+            
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (fileReader != null) {
+                safeClose(fileReader);
+            }
+            if (br != null) {
+                safeClose(br);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+        }
+        
+    }
+    
+    @Override
+    public void transformMapfreEsp(
+        String inPath,
+        String outPath){
+        
+        FileReader fileReader = null;
+        BufferedReader br = null;
+        PrintWriter pw = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.MAPFRE_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada1
+            fileReader = new FileReader(inPath);
+            br = new BufferedReader(fileReader);
+            
+            String sCurrentLine;
+            
+            // Tratamiento cabecera
+            sCurrentLine = br.readLine();
+            StringBuilder sb = new StringBuilder();
+            sb.append(sCurrentLine.substring(0, 2))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(2, 4))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(4, 132))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(132, 152))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(152, 162))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(162, 170))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(170, 176))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(176, 236))
+                    .append(Constants.SEMICOLON)
+                    .append(sCurrentLine.substring(236, 246));
+            pw.println(sb.toString());
+            
+            while ((sCurrentLine = br.readLine()) != null) {
+                
+                String line = sCurrentLine.substring(0, 2).equals("02") ? trataMovimientos(sCurrentLine)
+                        : trataTotales(sCurrentLine);
+                
+                pw.println(line);
+            }
+            
+            br.close();
+            fileReader.close();
+            pw.close();
+            
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (fileReader != null) {
+                safeClose(fileReader);
+            }
+            if (br != null) {
+                safeClose(br);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+        }
+        
+    }
+    
+    private String trataTotales(
+        String sCurrentLine){
+        
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(sCurrentLine.substring(0, 2))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(2, 5))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(5, 11))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(11, 25))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(25, 39))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(39, 53))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(53, 67))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(67, 97))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(97, 100))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(100, 104))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(104, 108))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(108, 110))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(110, 120))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(120, 129))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(129, 246));
+        
+        return sb.toString();
+    }
+    
+    private String trataMovimientos(
+        String sCurrentLine){
+        
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(sCurrentLine.substring(0, 2))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(2, 12))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(12, 32))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(32, 37))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(37, 81))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(81, 96))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(96, 107))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(107, 144))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(144, 147)) // 3
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(147, 155))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(155, 169))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(169, 183))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(183, 186)) // 3
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(186, 200))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(200, 220))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(220, 228))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(228, 237))
+                .append(Constants.SEMICOLON)
+                .append(sCurrentLine.substring(237, 245));
+        
+        return sb.toString();
+    }
+    
+    private void transformEuleasi(
+        String inPath,
+        String outPath){
+        
+        FileReader fileReader = null;
+        BufferedReader br = null;
+        PrintWriter pw = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.ALLIANZ_EULEASI_OUT_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada1
+            fileReader = new FileReader(inPath.concat(Constants.ALLIANZ_EULEASI_FILE));
+            br = new BufferedReader(fileReader);
+            
+            String sCurrentLine;
+            
+            while ((sCurrentLine = br.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                
+                sb.append(sCurrentLine.substring(0, 1))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(1, 10))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(10, 15))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(15, 18))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(18, 19))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(19, 28))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(28, 36))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(36, 45))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(45, 46))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(46, 57))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(57, 58))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(58, 67))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(67, 112))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(112, 120))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(120, 123))
+                        .append(Constants.SEMICOLON);
+                
+                sb.deleteCharAt(sb.length() - 1);
+                pw.println(sb.toString());
+            }
+            
+            br.close();
+            fileReader.close();
+            pw.close();
+            
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (fileReader != null) {
+                safeClose(fileReader);
+            }
+            if (br != null) {
+                safeClose(br);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+        }
+        
+    }
+    
+    private void transformEucontr(
+        final String inPath,
+        final String outPath){
+        
+        FileReader fileReader = null;
+        BufferedReader br = null;
+        PrintWriter pw = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.ALLIANZ_EUCONTR_OUT_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada1
+            fileReader = new FileReader(inPath.concat(Constants.ALLIANZ_EUCONTR_FILE));
+            br = new BufferedReader(fileReader);
+            
+            String sCurrentLine;
+            
+            while ((sCurrentLine = br.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                
+                sb.append(sCurrentLine.substring(0, 1))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(1, 3))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(3, 6))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(6, 7))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(7, 11))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(11, 15))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(15, 24))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(24, 29))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(29, 33))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(33, 42))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(42, 50))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(50, 58))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(58, 62))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(62, 70))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(70, 72))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(72, 73))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(73, 74))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(74, 75))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(75, 78))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(78, 82))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(82, 97))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(97, 99))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(99, 106))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(106, 114))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(114, 122))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(122, 131))
+                        .append(Constants.SEMICOLON);
+                
+                sb.deleteCharAt(sb.length() - 1);
+                pw.println(sb.toString());
+            }
+            
+            br.close();
+            fileReader.close();
+            pw.close();
+            
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (fileReader != null) {
+                safeClose(fileReader);
+            }
+            if (br != null) {
+                safeClose(br);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+        }
+        
+    }
+    
+    private void transformEuautos(
+        final String inPath,
+        final String outPath){
+        
+        FileReader fileReader = null;
+        BufferedReader br = null;
+        PrintWriter pw = null;
+        
+        try {
+            // Creamos el fichero de salida
+            System.setProperty("line.separator", "\n");
+            pw = new PrintWriter(new File(outPath.concat(Constants.ALLIANZ_EUAUTOS_OUT_FILE).concat(Constants.CSV)));
+            
+            // Leemos el fichero de entrada1
+            fileReader = new FileReader(inPath.concat(Constants.ALLIANZ_EUAUTOS_FILE));
+            br = new BufferedReader(fileReader);
+            
+            String sCurrentLine;
+            
+            while ((sCurrentLine = br.readLine()) != null) {
+                StringBuilder sb = new StringBuilder();
+                
+                sb.append(sCurrentLine.substring(0, 1))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(1, 10))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(10, 15))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(15, 18))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(18, 19))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(19, 28))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(28, 36))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(36, 45))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(45, 54))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(54, 63))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(63, 71))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(71, 111))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(111, 113))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(113, 125))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(125, 130))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(130, 132))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(132, 141))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(141, 152))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(152, 163))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(163, 174))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(174, 183))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(183, 192))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(192, 194))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(194, 205))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(205, 214))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(214, 259))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(259, 267))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(267, 269))
+                        .append(Constants.SEMICOLON)
+                        .append(sCurrentLine.substring(269, 272))
+                        .append(Constants.SEMICOLON);
+                
+                sb.deleteCharAt(sb.length() - 1);
+                String result = sb.toString().replace((char) 26, 'Ñ');
+                pw.println(result);
+            }
+            
+            br.close();
+            fileReader.close();
+            pw.close();
+            
+        } catch (Exception e) {
+            LOGGER.debug("Exception.", e);
+        } finally {
+            if (fileReader != null) {
+                safeClose(fileReader);
+            }
+            if (br != null) {
+                safeClose(br);
+            }
+            if (pw != null) {
+                safeClose(pw);
+            }
+        }
+    }
+    
     private String insertAvivaData(
         String[] data) throws ParseException{
         
@@ -849,7 +1372,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                 sb.append(Constants.SEMICOLON);
             } else if (i == 5 && data[i].matches(Constants.NUMBER_FORMAT)) {
                 // NO existe nombre, añadimos un vacío y el primer importe
-                sb.append(StringUtils.rightPad(StringUtils.EMPTY, Constants.NAME_LENGTH, StringUtils.SPACE));
+                sb.append(StringUtils.rightPad(StringUtils.EMPTY, Constants.ONE_HUNDRED_LENGTH, StringUtils.SPACE));
                 sb.append(Constants.SEMICOLON);
                 sb.append(insertNumber(data[i], true));
                 existName = false;
@@ -865,7 +1388,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                     name.deleteCharAt(name.length() - 1);
                     sb.append(StringUtils
                             .rightPad(name.toString(),
-                                    Constants.NAME_LENGTH,
+                                    Constants.ONE_HUNDRED_LENGTH,
                                     StringUtils.SPACE));
                     processedName = true;
                 }
@@ -873,7 +1396,7 @@ public class ExcelToCSVServiceImpl implements ExcelToCSVService {
                 sb.append(insertNumber(data[i], true));
             } else if (i == 3) {
                 // campo referencia
-                sb.append(StringUtils.rightPad(data[i], Constants.AVIVA_REFERENCE_LENGTH, StringUtils.EMPTY));
+                sb.append(StringUtils.rightPad(data[i], Constants.FORTY_LENGTH, StringUtils.EMPTY));
                 sb.append(Constants.SEMICOLON);
             } else {
                 

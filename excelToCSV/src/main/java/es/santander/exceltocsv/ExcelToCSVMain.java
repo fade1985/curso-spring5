@@ -5,7 +5,9 @@ import java.net.URISyntaxException;
 
 import org.apache.log4j.BasicConfigurator;
 
+import es.santander.exceltocsv.service.DuplicateService;
 import es.santander.exceltocsv.service.ExcelToCSVService;
+import es.santander.exceltocsv.service.impl.DuplicateServiceImpl;
 import es.santander.exceltocsv.service.impl.ExcelToCSVServiceImpl;
 
 public class ExcelToCSVMain {
@@ -16,6 +18,7 @@ public class ExcelToCSVMain {
         BasicConfigurator.configure();
         
         ExcelToCSVService service = new ExcelToCSVServiceImpl();
+        DuplicateService duplicateService = new DuplicateServiceImpl();
         
         service.transformAviva("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/aviva.pdf",
                 "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
@@ -38,6 +41,17 @@ public class ExcelToCSVMain {
         
         service.transformSantaLucia("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/santaLucia.txt",
                 "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        service.transformAllianz("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        service.transformMapfreEsp("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/mapfre_Espana.txt",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salida/");
+        
+        duplicateService.duplicaArag("C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/entrada/",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/salidaDup/",
+                "C:/Cosas_Importantes/2018/Marzo/Seguros/Pruebas/clientes.txt");
+        
         // String entrada =
         // "Entrada:::: uno: '&&1' , dos: '&&2' , varios: '&&123', dos: g4agerga
         // '&&2', dos: '&&2', uno: '&&1'";

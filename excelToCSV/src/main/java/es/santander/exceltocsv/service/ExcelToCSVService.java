@@ -30,4 +30,13 @@ public interface ExcelToCSVService {
     void transformSantaLucia(
         final String inPath,
         final String outPath);
+    
+    void transformAllianz(
+        final String inPath,
+        final String outPath);
+    
+    void transformMapfreEsp(
+        final String inPath,
+        final String outPath);
+    
 }
